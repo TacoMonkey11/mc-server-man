@@ -21,14 +21,13 @@ modloader=0
 function forge () {
     mcversion=0
     forgeversion=0
-    echo "${tag} This script only supports versions 1.10+ and 1.5.2-1.6.4!"
+    echo "${tag} This script only supports forge minecraft versions 1.10+ and 1.5.2-1.6.4!"
     echo "${tag} Enter minecraft version"
     read -p "> " mcversion
-    echo "${tag} Enter forge version"
+    echo "${tag} Enter fabric loader version"
     read -p "> " forgeversion
     echo "${tag} Downloading server"
-    curl -OJ -s "https://maven.minecraftforge.net/net/minecraftforge/forge/${mcversion}-${forgeversion}/forge-${mcversion}-${forgeversion}-installer.jar" -o forge-installer.jar
-    echo "${tag} Installing server in current directory"
+    curl -OJ -s "https://maven.minecraftforge.net/net/minecraftforge/forge/${mcversion}-${forgeversion}/forge-${mcversion}-${forgeversion}-installer.jar"
     java -jar "forge-${mcversion}-${forgeversion}-installer.jar" --installServer >> /dev/null
     echo "$tag Cleaning up"
     if [[ -f "run.bat" ]]
@@ -40,7 +39,28 @@ function forge () {
 }
 
 function fabric () {
-    echo "fabric"
+    mcversion=0
+    fabricversion=0
+    echo "${tag} Fabric only supports versions 1.14+!"
+    echo "${tag} Enter minecraft version (leave empty for latest)"
+    read -p "> " mcversion
+    echo "${tag} Enter fabric loader version (leave empty for latest)"
+    read -p "> " fabricversion
+    echo "${tag} Downloading server"
+    curl -OJ -s "https://maven.fabricmc.net/net/fabricmc/fabric-installer/0.10.2/fabric-installer-0.10.2.jar"
+    if [[ $mcversion == "" ]]; then
+        if [[ $fabricversion == "" ]]; then
+            java -jar fabric-installer-0.10.2.jar server 
+        else
+            java -jar fabric-installer-0.10.2.jar server -loader ${fabricversion}
+        fi
+    else 
+        if [[ $fabricversion == "" ]]; then
+            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion}
+        else 
+            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} -loader ${fabricversion}
+        fi
+    fi
 }
 
 function quilt () {
