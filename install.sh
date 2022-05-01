@@ -14,14 +14,29 @@ cyan="$bold$darkcyan"
 gray=$(tput setaf 7)                      
 darkgray="$bold"$(tput setaf 0)           
 white="$bold$gray"
+tag="${cyan}[${fawn}MSI${cyan}]${normal}"
 
 modloader=0
 
 function forge () {
     mcversion=0
-    echo "Enter Version (1.5+)"
+    forgeversion=0
+    echo "${tag} This script only supports versions 1.10+ and 1.5.2-1.6.4!"
+    echo "${tag} Enter minecraft version"
     read -p "> " mcversion
-    curl -O --progress-bar "https://raw.githubusercontent.com/TacoMonkey11/mc-server-installer/main/forge.txt"
+    echo "${tag} Enter forge version"
+    read -p "> " forgeversion
+    echo "${tag} Downloading server"
+    curl -OJ -s "https://maven.minecraftforge.net/net/minecraftforge/forge/${mcversion}-${forgeversion}/forge-${mcversion}-${forgeversion}-installer.jar" -o forge-installer.jar
+    echo "${tag} Installing server in current directory"
+    java -jar "forge-${mcversion}-${forgeversion}-installer.jar" --installServer >> /dev/null
+    echo "$tag Cleaning up"
+    if [[ -f "run.bat" ]]
+    then
+        rm run.bat && rm "forge-${mcversion}-${forgeversion}-installer.jar.log"
+    fi
+    echo "${tag} All finished!"
+
 }
 
 function fabric () {
@@ -33,14 +48,14 @@ function quilt () {
 }
 
 echo -ne "
-${green}${bold}MC SERVER INSTALLER
+${fawn}${bold}MC SERVER INSTALLER
+${cyan}-------------------
 
-Select Mod Loader
------------------
+${tag} Select Mod Loader
 
-(1) Forge
-(2) Fabric
-(3) Quilt
+${cyan}(${fawn}1${cyan})${normal} Forge
+${cyan}(${fawn}2${cyan})${normal} Fabric
+${cyan}(${fawn}3${cyan})${normal} Quilt
 
 "
 read -p "> " modloader
