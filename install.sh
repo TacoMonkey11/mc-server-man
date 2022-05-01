@@ -17,7 +17,7 @@ function forge () {
     read -p "> " forgeversion
     echo "${tag} Downloading server"
     curl -OJ -s "https://maven.minecraftforge.net/net/minecraftforge/forge/${mcversion}-${forgeversion}/forge-${mcversion}-${forgeversion}-installer.jar"
-    java -jar "forge-${mcversion}-${forgeversion}-installer.jar" --installServer >> /dev/null
+    java -jar forge-${mcversion}-${forgeversion}-installer.jar --installServer >> /dev/null
     echo "$tag Cleaning up"
     if [[ -f "run.bat" ]]
     then
@@ -40,15 +40,15 @@ function fabric () {
     echo "${tag} Installing server"
     if [[ $mcversion == "" ]]; then
         if [[ $fabricversion == "" ]]; then
-            java -jar fabric-installer-0.10.2.jar server >> /dev/null
+            java -jar fabric-installer-0.10.2.jar server >/dev/null
         else
-            java -jar fabric-installer-0.10.2.jar server -loader ${fabricversion} >> /dev/null
+            java -jar fabric-installer-0.10.2.jar server -loader ${fabricversion} >/dev/null
         fi
     else 
         if [[ $fabricversion == "" ]]; then
-            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} >> /dev/null
+            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} >/dev/null
         else 
-            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} -loader ${fabricversion} >> /dev/null
+            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} -loader ${fabricversion} >/dev/null
         fi
     fi
     echo "${tag} Cleaning up"
