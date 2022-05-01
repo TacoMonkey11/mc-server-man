@@ -21,6 +21,7 @@ function forge () {
     mcversion=0
     echo "Enter Version (1.5+)"
     read -p "> " mcversion
+    curl -O --progress-bar "https://raw.githubusercontent.com/TacoMonkey11/mc-server-installer/main/forge.txt"
 }
 
 function fabric () {
