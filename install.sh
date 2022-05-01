@@ -1,19 +1,8 @@
 #!/usr/bin/env bash                      
 normal=$'\e[0m'                           
-bold=$(tput bold)                         
-red="$bold$(tput setaf 1)"               
-green=$(tput setaf 2)                     
-fawn=$(tput setaf 3); beige="$fawn"       
-yellow="$bold$fawn"                       
-darkblue=$(tput setaf 4)                  
-blue="$bold$darkblue"                     
-purple=$(tput setaf 5); magenta="$purple" 
-pink="$bold$purple"                       
-darkcyan=$(tput setaf 6)                  
+bold=$(tput bold)                                      
+fawn=$(tput setaf 3); beige="$fawn"                    
 cyan="$bold$darkcyan"                     
-gray=$(tput setaf 7)                      
-darkgray="$bold"$(tput setaf 0)           
-white="$bold$gray"
 tag="${cyan}[${fawn}MSI${cyan}]${normal}"
 
 modloader=0
@@ -48,19 +37,22 @@ function fabric () {
     read -p "> " fabricversion
     echo "${tag} Downloading server"
     curl -OJ -s "https://maven.fabricmc.net/net/fabricmc/fabric-installer/0.10.2/fabric-installer-0.10.2.jar"
+    echo "${tag} Installing server"
     if [[ $mcversion == "" ]]; then
         if [[ $fabricversion == "" ]]; then
-            java -jar fabric-installer-0.10.2.jar server 
+            java -jar fabric-installer-0.10.2.jar server >> /dev/null
         else
-            java -jar fabric-installer-0.10.2.jar server -loader ${fabricversion}
+            java -jar fabric-installer-0.10.2.jar server -loader ${fabricversion} >> /dev/null
         fi
     else 
         if [[ $fabricversion == "" ]]; then
-            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion}
+            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} >> /dev/null
         else 
-            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} -loader ${fabricversion}
+            java -jar fabric-installer-0.10.2.jar server -mcversion ${mcversion} -loader ${fabricversion} >> /dev/null
         fi
     fi
+    echo "${tag} Cleaning up"
+    rm fabric-installer-0.10.2.jar
 }
 
 function quilt () {
