@@ -56,7 +56,24 @@ function fabric () {
 }
 
 function quilt () {
-    echo "quilt"
+    mcversion=0
+    quiltversion=0
+    echo "${tag} Quilt only supports versions 1.14+!"
+    echo "${tag} Enter minecraft version"
+    read -p "> " mcversion
+    echo "${tag} Enter quilt loader version (leave empty for latest)"
+    read -p "> " quiltversion
+    echo "${tag} Downloading server"
+    curl -OLJ -s "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-installer/latest/quilt-installer-latest.jar"
+    echo "${tag} Installing server"
+    if [[ $quiltversion == "" ]]; then 
+        java -jar quilt-installer-latest.jar install server ${mcversion} --download-server >/dev/null
+    else 
+        java -jar quilt-installer-latest.jar install server ${mcversion} ${quiltversion} --install-dir=.. --download-server >/dev/null
+    fi
+    echo "${tag} Cleaning up"
+    rm quilt-installer-latest.jar
+    mv server/* . && rm -r server
 }
 
 echo -ne "
