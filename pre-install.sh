@@ -38,13 +38,11 @@ checkTmux() {
     fi
 }
 
-
-
-
-
 if [[ "$OSTYPE" != "linux-gnu" ]] && [[ "$OSTYPE" != "darwin"* ]]; then 
     echo "${tag} You are not using a tested OS! Things may break!"
 fi
 
 checkJava "1.8" && checkJava "17"
 checkTmux
+
+
