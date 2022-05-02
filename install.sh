@@ -8,8 +8,8 @@ tag="${cyan}[${fawn}MSI${cyan}]${normal}"
 modloader=0
 
 function forge () {
-    mcversion=0
-    forgeversion=0
+    mcversion=
+    forgeversion=
     echo "${tag} This script only supports forge minecraft versions 1.10+ and 1.5.2-1.6.4!"
     echo "${tag} Enter minecraft version"
     read -p "> " mcversion
@@ -28,8 +28,8 @@ function forge () {
 }
 
 function fabric () {
-    mcversion=0
-    fabricversion=0
+    mcversion=
+    fabricversion=
     echo "${tag} Fabric only supports versions 1.14+!"
     echo "${tag} Enter minecraft version (leave empty for latest)"
     read -p "> " mcversion
@@ -56,13 +56,16 @@ function fabric () {
 }
 
 function quilt () {
-    mcversion=0
-    quiltversion=0
+    mcversion=
+    quiltversion=
+    memory=
     echo "${tag} Quilt only supports versions 1.14+!"
     echo "${tag} Enter minecraft version"
     read -p "> " mcversion
     echo "${tag} Enter quilt loader version (leave empty for latest)"
     read -p "> " quiltversion
+    echo "${tag} Enter amount of memory to use in the startup script (GB)"
+    read -p "> " memory
     echo "${tag} Downloading server"
     curl -OLJ -s "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-installer/latest/quilt-installer-latest.jar"
     echo "${tag} Installing server"
@@ -71,6 +74,9 @@ function quilt () {
     else 
         java -jar quilt-installer-latest.jar install server ${mcversion} ${quiltversion} --install-dir=.. --download-server >/dev/null
     fi
+    echo "${tag} Creating startup script"
+    curl -O "https://raw.githubusercontent.com/TacoMonkey11/mc-server-installer/main/start.sh"
+    sed 
     echo "${tag} Cleaning up"
     rm quilt-installer-latest.jar
     mv server/* . && rm -r server
