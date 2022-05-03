@@ -67,11 +67,11 @@ else
 fi
 
 echo "${tag} Symlinking script"
-chmod +x setup-server
+chmod +x servermanager
 if [[ "$OSTYPE" == "linux-gnu" ]]
 then
-    ln -snf "${PWD}/setup-server" "/usr/bin/"
+    ln -snf "${PWD}/servermanager" "/usr/bin/"
 elif [[ "$OSTYPE" == "darwin"* ]]
 then
-    ln -snf "${PWD}/setup-server" "/usr/local/bin"
+    ln -snf "${PWD}/servermanager" "/usr/local/bin"
 fi
