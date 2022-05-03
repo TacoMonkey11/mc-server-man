@@ -37,12 +37,18 @@ checkJava() {
 checkTmux() {
     if command -v tmux >/dev/null
     then
-        echo "${tag} Tmux has been detected"
+        echo -e "${tag} Tmux has been detected\n"
         checks+=1
     else 
         echo "${tag} Tmux has not been detected"
     fi
 }
+
+if [[ $PWD != *"/mc-server-installer/scripts" ]] 
+then
+    echo "${tag} You are NOT running this script in the right directory! Please run it's own folder"
+    exit
+fi
 
 if [[ "$OSTYPE" != "linux-gnu" ]] && [[ "$OSTYPE" != "darwin"* ]]; then 
     echo "${tag} You are not using a tested OS! Things may break!"
@@ -53,18 +59,19 @@ checkTmux
 
 if [[ ${checks} == 3 ]] 
 then 
-    echo "${tag} Passed all checks. Moving on.\n"
+    echo -e "${tag} Passed all checks. Moving on.\n"
 else 
     echo "${tag} Some checks have failed, exiting\n"
     return 0
     exit
 fi
 
-if [[ "$SHELL" == "/bin/bash" ]] 
+echo "${tag} Symlinking script"
+chmod +x setup-server
+if [[ "$OSTYPE" == "linux-gnu" ]]
 then
-    echo "${tag} Add the following to your .bashrc:"
-elif [[ "$SHELL" == "/bin/zsh" ]]
+    ln -snf "${PWD}/setup-server" "/usr/bin/"
+elif [[ "$OSTYPE" == "darwin"* ]]
 then
-    echo "${tag} Add the following to your .zshrc:"
+    ln -snf "${PWD}/setup-server" "/usr/local/bin"
 fi
-echo "export PATH=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/script:\$PATH"
