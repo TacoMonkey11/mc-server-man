@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-normal=$'\e[0m'                           
-bold=$(tput bold)                                      
+normal=$'\e[0m'                                                            
 brown=$(tput setaf 94)                
 green=$(tput setaf 2)                   
 tag="${green}[${brown}MSI${green}]${normal}"
@@ -55,7 +54,7 @@ if [[ "$OSTYPE" != "linux-gnu" ]] && [[ "$OSTYPE" != "darwin"* ]]; then
 fi
 
 checkJava "1.8" && checkJava "17"
-checkCommand "tmux" && checkCommand "jq"
+checkCommand "tmux" && checkCommand "yq"
 
 if [[ ${checks} == 4 ]] 
 then 
