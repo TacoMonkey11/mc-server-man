@@ -34,13 +34,13 @@ checkJava() {
     fi
 }
 
-checkTmux() {
-    if command -v tmux >/dev/null
+checkCommand() {
+    if command -v $1 >/dev/null
     then
-        echo -e "${tag} Tmux has been detected\n"
+        echo -e "${tag} ${1} has been detected"
         checks+=1
     else 
-        echo "${tag} Tmux has not been detected"
+        echo "${tag} ${1} has not been detected"
     fi
 }
 
@@ -55,14 +55,13 @@ if [[ "$OSTYPE" != "linux-gnu" ]] && [[ "$OSTYPE" != "darwin"* ]]; then
 fi
 
 checkJava "1.8" && checkJava "17"
-checkTmux
+checkCommand "tmux" && checkCommand "jq"
 
-if [[ ${checks} == 3 ]] 
+if [[ ${checks} == 4 ]] 
 then 
-    echo -e "${tag} Passed all checks. Moving on.\n"
+    echo -e "\n${tag} Passed all checks. Moving on.\n"
 else 
-    echo "${tag} Some checks have failed, exiting\n"
-    return 0
+    echo -e "\n${tag} Some checks have failed, exiting\n"
     exit
 fi
 
