@@ -1,1 +1,126 @@
 #!/usr/bin/env bash
+
+normal=$'\e[0m'
+brown=$(tput setaf 94)
+green=$(tput setaf 2)
+tag="${brown}[${green}MSI${brown}]${normal}"
+
+#*******************#
+# Utility Functions #
+#*******************#
+
+# https://stackoverflow.com/a/4025065
+vercomp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
+#*********************#
+# Modloader Functions #
+#*********************#
+
+latest_game_version() {
+    local json=$(mktemp)
+    echo $(curl -s "https://meta.quiltmc.org/v3/versions/game") >>${json}
+    local latest_version=$(yq '.[] | select(.stable) | .version' ${json} | head -n 1)
+    rm ${json}
+    echo ${latest_version}
+}
+
+forge_from_mc() {
+    local xml=$(mktemp)
+    echo $(curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml") >>${xml}
+    forge=$(yq -p=xml '.metadata.versioning.versions' $xml | grep "^  - $1-.*" | head -n 1)
+    forge=${forge:4}
+    echo $forge
+    rm $xml
+}
+
+install_forge() {
+    echo "${tag} Remember, this script only supports forge versions 1.6.1 and above"
+    read -p "$tag Minecraft Version [$(latest_game_version)]: " mc_version
+    mc_version=${mc_version:-$(latest_game_version)}
+    vercomp $mc_version 1.6.1
+    if [[ $? == 2 ]]; then
+        echo "$tag $mc_version is too old, this script only supports 1.6.1+, exiting"
+        exit 0
+    fi
+    latest_forge=$(forge_from_mc "$mc_version")
+    if [[ -z $latest_forge ]]; then
+        echo "$tag Forge doesn't have a release for the selected minecraft version, exiting"
+        exit 0
+    fi
+    IFS='-' read mc forge_version extra <<<"$latest_forge"
+    read -p "$tag Entire Forge Loader Version [$forge_version]: " forge
+    forge=${forge:-${latest_forge}}
+
+    read -p "$tag Server Name (used for server directory name): " server_name
+    if [[ -z $server_name  ]]; then
+        echo "Server name can't be empty, exiting"
+        exit 0
+    fi
+
+    # actual installing part
+    mkdir $server_name
+    cd $server_name
+
+    curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/$forge/forge-$forge-installer.jar" -o installer.jar
+    java -jar installer.jar --installServer >/dev/null &
+    pid=$!
+    spin='-\|/'
+    i=0
+    while kill -0 $pid 2>/dev/null; do
+        i=$(((i + 1) % 4))
+        printf "\r$tag Installing ${spin:$i:1}"
+        sleep .1
+    done
+    rm installer.jar*
+
+}
+
+#**************#
+# Script Start #
+#**************#
+
+echo -ne """
+$brown(${green}1$brown)$normal Forge
+$brown(${green}2$brown)$normal Fabric
+$brown(${green}3$brown)$normal Quilt
+$brown(${green}4$brown)$normal Exit
+
+"""
+
+read -p "$tag Select Modloader: " modloader
+
+case $modloader in
+1) install_forge ;;
+2) echo "Fabric" ;;
+3) echo "Quilt" ;;
+4) exit 1 ;;
+esac
