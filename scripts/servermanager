@@ -46,20 +46,14 @@ vercomp () {
 #*********************#
 
 latest_game_version() {
-    local json=$(mktemp)
-    curl -o $json -s "https://meta.quiltmc.org/v3/versions/game"
-    local latest_version=$(yq '.[] | select(.stable) | .version' ${json} | head -n 1)
+    local latest_version=$(curl -s "https://meta.quiltmc.org/v3/versions/game" | yq '.[] | select(.stable) | .version' ${json} | head -n 1)
     echo ${latest_version}
-    rm ${json}
 }
 
 forge_from_mc() {
-    local xml=$(mktemp)
-    curl -o $xml -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml"
-    forge=$(yq -p=xml '.metadata.versioning.versions' $xml | grep "^  - $1-.*" | head -n 1)
+    forge=$(curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml" | yq -p=xml '.metadata.versioning.versions' $xml | grep "^  - $1-.*" | head -n 1)
     forge=${forge:4}
     echo $forge
-    rm $xml
 }
 
 install_forge() {
