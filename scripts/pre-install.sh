@@ -36,6 +36,7 @@ checkCommand() {
         printf "${tag} ${1} has not been detected\n"
         if [[$1 == "yq"]]; then
             printf "You can get it from the snap store on linux\n"
+        fi
     fi
 }
 
