@@ -4,27 +4,22 @@ brown=$(tput setaf 94)
 green=$(tput setaf 2)                   
 tag="${green}[${brown}MSI${green}]${normal}"
 
-checks=0
-declare -i checks
+checks=0 && declare -i checks
 
 checkJava() {
     javaVersion=$1
-    if [[ "$OSTYPE" == "linux-gnu" ]] 
-    then 
-        if [[ $javaVersion == "1.8" ]]
-        then 
+    if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        if [[ $javaVersion == "1.8" ]]; then 
             javaVersion="8"
         fi
-        if ls /usr/lib/jvm | grep -q $javaVersion
-        then 
+        if ls /usr/lib/jvm | grep -q $javaVersion; then 
             printf "${tag} Java ${javaVersion} has been detected\n"
             checks+=1
         else 
             printf "${tag} Java ${javaVersion} has NOT been detected, it may not be installed\n"
         fi
     elif [[ "$OSTYPE" == "darwin"* ]]; then 
-        if /usr/libexec/java_home -v $javaVersion >/dev/null
-        then 
+        if /usr/libexec/java_home -v $javaVersion >/dev/null; then 
             printf "${tag} Java ${javaVersion} has been detected\n"
             checks+=1
         else 
@@ -34,8 +29,7 @@ checkJava() {
 }
 
 checkCommand() {
-    if command -v $1 >/dev/null
-    then
+    if command -v $1 >/dev/null; then
         printf "${tag} ${1} has been detected\n"
         checks+=1
     else 
@@ -43,8 +37,7 @@ checkCommand() {
     fi
 }
 
-if [[ $PWD != *"/mc-server-installer/scripts" ]] 
-then
+if [[ $PWD != *"/mc-server-installer/scripts" ]]; then
     printf "${tag} You are NOT running this script in the right directory! Please run it's own folder"
     exit
 fi
@@ -56,8 +49,7 @@ fi
 checkJava "1.8" && checkJava "17"
 checkCommand "tmux" && checkCommand "yq"
 
-if [[ ${checks} == 4 ]] 
-then 
+if [[ ${checks} == 4 ]]; then 
     printf "\n${tag} Passed all checks. Moving on.\n\n"
 else 
     printf "\n${tag} Some checks have failed, exiting\n\n"
@@ -66,10 +58,8 @@ fi
 
 printf "${tag} Symlinking script"
 chmod +x servermanager
-if [[ "$OSTYPE" == "linux-gnu" ]]
-then
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
     ln -snf "${PWD}/servermanager" "/usr/bin/"
-elif [[ "$OSTYPE" == "darwin"* ]]
-then
+elif [[ "$OSTYPE" == "darwin"* ]]; then
     ln -snf "${PWD}/servermanager" "/usr/local/bin"
 fi
