@@ -59,7 +59,7 @@ else
     exit
 fi
 
-printf "${tag} Final step is to symlink the script, run the following as root: "
+printf "${tag} Final step is to symlink the script, run the following as root: \n"
 chmod +x servermanager
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
 printf "ln -snf ${PWD}/servermanager /usr/bin/"
