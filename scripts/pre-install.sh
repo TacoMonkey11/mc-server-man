@@ -62,7 +62,7 @@ fi
 printf "${tag} Final step is to symlink the script, run the following as root: \n"
 chmod +x servermanager
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
-printf "ln -snf ${PWD}/servermanager /usr/bin/"
+printf "ln -snf ${PWD}/servermanager /usr/bin/\n"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-printf "ln -snf ${PWD}/servermanager /usr/local/bin/"
+printf "ln -snf ${PWD}/servermanager /usr/local/bin/\n"
 fi
