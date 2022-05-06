@@ -47,33 +47,33 @@ vercomp () {
 
 latest_game_version() {
     local json=$(mktemp)
-    echo $(curl -s "https://meta.quiltmc.org/v3/versions/game") >>${json}
+    curl -o $json -s "https://meta.quiltmc.org/v3/versions/game"
     local latest_version=$(yq '.[] | select(.stable) | .version' ${json} | head -n 1)
+    printf ${latest_version}
     rm ${json}
-    echo ${latest_version}
 }
 
 forge_from_mc() {
     local xml=$(mktemp)
-    echo $(curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml") >>${xml}
+    curl -o $xml -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml"
     forge=$(yq -p=xml '.metadata.versioning.versions' $xml | grep "^  - $1-.*" | head -n 1)
     forge=${forge:4}
-    echo $forge
+    printf $forge
     rm $xml
 }
 
 install_forge() {
-    echo "${tag} Remember, this script only supports forge versions 1.6.1 and above"
+    printf "${tag} Remember, this script only supports forge versions 1.6.1 and above\n"
     read -p "$tag Minecraft Version [$(latest_game_version)]: " mc_version
     mc_version=${mc_version:-$(latest_game_version)}
     vercomp $mc_version 1.6.1
     if [[ $? == 2 ]]; then
-        echo "$tag $mc_version is too old, this script only supports 1.6.1+, exiting"
+        printf "$tag $mc_version is too old, this script only supports 1.6.1+, exiting\n"
         exit 0
     fi
     latest_forge=$(forge_from_mc "$mc_version")
     if [[ -z $latest_forge ]]; then
-        echo "$tag Forge doesn't have a release for the selected minecraft version, exiting"
+        printf "$tag Forge doesn't have a release for the selected minecraft version, exiting\n"
         exit 0
     fi
     IFS='-' read mc forge_version extra <<<"$latest_forge"
@@ -82,7 +82,7 @@ install_forge() {
 
     read -p "$tag Server Name (used for server directory name): " server_name
     if [[ -z $server_name  ]]; then
-        echo "Server name can't be empty, exiting"
+        printf "$tag Server name can't be empty, exiting\n"
         exit 0
     fi
 
@@ -108,7 +108,7 @@ install_forge() {
 # Script Start #
 #**************#
 
-echo -ne """
+printf """
 $brown(${green}1$brown)$normal Forge
 $brown(${green}2$brown)$normal Fabric
 $brown(${green}3$brown)$normal Quilt
@@ -120,7 +120,7 @@ read -p "$tag Select Modloader: " modloader
 
 case $modloader in
 1) install_forge ;;
-2) echo "Fabric" ;;
-3) echo "Quilt" ;;
+2) printf "Fabric" ;;
+3) printf "Quilt" ;;
 4) exit 1 ;;
 esac

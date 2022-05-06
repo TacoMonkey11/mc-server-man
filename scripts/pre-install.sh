@@ -17,18 +17,18 @@ checkJava() {
         fi
         if ls /usr/lib/jvm | grep -q $javaVersion
         then 
-            echo "${tag} Java ${javaVersion} has been detected"
+            printf "${tag} Java ${javaVersion} has been detected\n"
             checks+=1
         else 
-            echo "${tag} Java ${javaVersion} has NOT been detected, it may not be installed"
+            printf "${tag} Java ${javaVersion} has NOT been detected, it may not be installed\n"
         fi
     elif [[ "$OSTYPE" == "darwin"* ]]; then 
         if /usr/libexec/java_home -v $javaVersion >/dev/null
         then 
-            echo "${tag} Java ${javaVersion} has been detected"
+            printf "${tag} Java ${javaVersion} has been detected\n"
             checks+=1
         else 
-            echo "${tag} Java ${javaVersion} has NOT been detected, it may not be installed"
+            printf "${tag} Java ${javaVersion} has NOT been detected, it may not be installed\n"
         fi
     fi
 }
@@ -36,21 +36,21 @@ checkJava() {
 checkCommand() {
     if command -v $1 >/dev/null
     then
-        echo -e "${tag} ${1} has been detected"
+        printf "${tag} ${1} has been detected\n"
         checks+=1
     else 
-        echo "${tag} ${1} has not been detected"
+        printf "${tag} ${1} has not been detected\n"
     fi
 }
 
 if [[ $PWD != *"/mc-server-installer/scripts" ]] 
 then
-    echo "${tag} You are NOT running this script in the right directory! Please run it's own folder"
+    printf "${tag} You are NOT running this script in the right directory! Please run it's own folder"
     exit
 fi
 
 if [[ "$OSTYPE" != "linux-gnu" ]] && [[ "$OSTYPE" != "darwin"* ]]; then 
-    echo "${tag} You are not using a tested OS! Things may break!"
+    printf "${tag} You are not using a tested OS! Things may break!"
 fi
 
 checkJava "1.8" && checkJava "17"
@@ -58,13 +58,13 @@ checkCommand "tmux" && checkCommand "yq"
 
 if [[ ${checks} == 4 ]] 
 then 
-    echo -e "\n${tag} Passed all checks. Moving on.\n"
+    printf "\n${tag} Passed all checks. Moving on.\n\n"
 else 
-    echo -e "\n${tag} Some checks have failed, exiting\n"
+    printf "\n${tag} Some checks have failed, exiting\n\n"
     exit
 fi
 
-echo "${tag} Symlinking script"
+printf "${tag} Symlinking script"
 chmod +x servermanager
 if [[ "$OSTYPE" == "linux-gnu" ]]
 then
