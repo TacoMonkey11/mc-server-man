@@ -40,7 +40,7 @@ checkCommand() {
     fi
 }
 
-if [[ $PWD != *"/mc-server-installer/scripts" ]]; then
+if [[ $PWD != *"/mc-server-man/scripts" ]]; then
     printf "${tag} You are NOT running this script in the right directory! Please run it's own folder\n"
     exit
 fi
