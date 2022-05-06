@@ -95,6 +95,7 @@ install_forge() {
         sleep .1
     done
     rm installer.jar*
+    printf "\n"
 
 }
 
