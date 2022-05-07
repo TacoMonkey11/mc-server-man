@@ -41,42 +41,69 @@ vercomp () {
     return 0
 }
 
+latest_game_version() {
+    local latest_version=$(curl -s "https://meta.quiltmc.org/v3/versions/game" | yq '.[] | select(.stable) | .version' | head -n 1)
+    echo ${latest_version}
+}
+
+verify_mc_version() {
+    if curl -s https://meta.multimc.org/v1/net.minecraft/ | yq -P '.versions[] | select(.type=="release") | .version' | grep -q "^$1$"; then
+        return 1  
+    else
+        echo "$tag $1 is not a valid minecraft version, exiting..."  
+        exit 0
+    fi
+}
+
 #*********************#
 # Modloader Functions #
 #*********************#
 
-latest_game_version() {
-    local latest_version=$(curl -s "https://meta.quiltmc.org/v3/versions/game" | yq '.[] | select(.stable) | .version' ${json} | head -n 1)
-    echo ${latest_version}
-}
-
 forge_from_mc() {
-    forge=$(curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml" | yq -p=xml '.metadata.versioning.versions' $xml | grep "^  - $1-.*" | head -n 1)
+    forge=$(curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml" | yq -p=xml '.metadata.versioning.versions' | grep "^  - $1-.*" | head -n 1)
     forge=${forge:4}
     echo $forge
 }
 
+verify_forge() {
+    if curl -s "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml" | yq -p=xml '.metadata.versioning.versions' | grep -q "^  - $1$"; then
+        return 1
+    else
+        echo "$tag That's not a valid forge version, exiting"
+        exit 0
+    fi
+}
+
 install_forge() {
-    printf "${tag} Remember, this script only supports forge versions 1.6.1 and above\n"
-    read -p "$tag Minecraft Version [$(latest_game_version)]: " mc_version
+    # ask for mc version
+    echo "$tag This script only supports forge versions 1.6.1 and above"
+    read -p "$tag Minecraft Version [$(latest_game_version)]: " local mc_version
     mc_version=${mc_version:-$(latest_game_version)}
+    # check if inputted version is a valid minecraft version
+    verify_mc_version $mc_version
+
+    # check to see if the version is supported
     vercomp $mc_version 1.6.1
     if [[ $? == 2 ]]; then
-        printf "$tag $mc_version is too old, this script only supports 1.6.1+, exiting\n"
+        echo "$tag $mc_version is too old, only 1.6.1 and above are supported, exiting"
         exit 0
     fi
     latest_forge=$(forge_from_mc "$mc_version")
     if [[ -z $latest_forge ]]; then
-        printf "$tag Forge doesn't have a release for the selected minecraft version, exiting\n"
+        echo "$tag Forge doesn't have a release for the selected minecraft version, exiting"
         exit 0
     fi
     IFS='-' read mc forge_version extra <<<"$latest_forge"
     read -p "$tag Entire Forge Loader Version [$forge_version]: " forge
-    forge=${forge:-${latest_forge}}
+    local forge=${forge:-${latest_forge}}
 
+    if verify_forge $forge; then
+        echo "$tag $forge is not a valid forge version, exiting"
+        exit 0
+    fi
     read -p "$tag Server Name (used for server directory name): " server_name
     if [[ -z $server_name  ]]; then
-        printf "$tag Server name can't be empty, exiting\n"
+        echo "$tag Server name can't be empty, exiting"
         exit 0
     fi
 
@@ -99,6 +126,19 @@ install_forge() {
 
 }
 
+install_fabric() {
+    echo "$tag Remember, Fabric only supports Minecraft versions 1.14 and above"
+    read -p "$tag Minecraft Version [$(latest_game_version)]: " mc_version
+    mc_version=${mc_version:-$(latest_game_version)}
+
+    verify_mc_version $mc_version
+    vercomp $mc_version 1.14
+    if [[ $? == 2 ]]; then
+        echo "$tag You selected a version below 1.14 which fabric does not support, exiting"
+        exit 0
+    fi
+}
+
 #**************#
 # Script Start #
 #**************#
@@ -115,7 +155,8 @@ read -p "$tag Select Modloader: " modloader
 
 case $modloader in
 1) install_forge ;;
-2) printf "Fabric" ;;
+2) install_fabric ;;
 3) printf "Quilt" ;;
 4) exit 1 ;;
 esac
+
